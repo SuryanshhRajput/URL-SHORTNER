@@ -1,4 +1,4 @@
-import express, { Router } from "express";
+import { Router } from "express";
 import generateCode from "../utils/generateCode.js";
 import urlModel from "../models/url.model.js";
 
@@ -43,13 +43,30 @@ router.post("/", async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
-  const urls = await urlModel.find();
+  const urls = await urlModel.find().sort({ createdAt: -1 });
 
   return res.status(200).json({
     message: "URL fetched successfully",
     data: {
       urls,
     },
+  });
+});
+
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const deletedUrl = await urlModel.findByIdAndDelete(id);
+
+  if (!deletedUrl) {
+    return res.status(404).json({
+      message: "URL not found",
+    });
+  }
+
+  return res.status(200).json({
+    message: "URL deleted successfully",
+    data: deletedUrl,
   });
 });
 
